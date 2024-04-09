@@ -1,26 +1,26 @@
 function handleFormSubmit(event) {
     event.preventDefault();
-    const userDetails = {
-      username: event.target.username.value,
-      email: event.target.email.value,
-      phone: event.target.phone.value,
+    const vegDetail = {
+      Name: event.target.Name.value,
+      Price: event.target.Price.value,
+      Quantity: event.target.Quantity.value,
     };
     axios
       .post(
-        "https://crudcrud.com/api/9eae1dc0e3044118a978c0ea505c2000/appointmentData",
-        userDetails
+        "https://crudcrud.com/api/0abe13028f224d9d88f2ff8939818e2b/VegetableShop",
+        vegDetail
       )
       .then((response) => displayUserOnScreen(response.data))
       .catch((error) => console.log(error));
   
     // Clearing the input fields
-    document.getElementById("username").value = "";
-    document.getElementById("email").value = "";
-    document.getElementById("phone").value = "";
+    document.getElementById("Name").value = "";
+    document.getElementById("Price").value = "";
+    document.getElementById("Quantity").value = "";
   }
 
   window.addEventListener("DOMContentLoaded", () => {
-    axios.get("https://crudcrud.com/api/9eae1dc0e3044118a978c0ea505c2000/appointmentData")
+    axios.get("https://crudcrud.com/api/0abe13028f224d9d88f2ff8939818e2b/VegetableShop")
     .then((res) => {
         console.log(res)
         for (var i = 0; i< res.data.length; i++) {
@@ -34,45 +34,61 @@ function handleFormSubmit(event) {
   
 
   
-  function displayUserOnScreen(userDetails) {
+  function displayUserOnScreen(vegDetail) {
     const userItem = document.createElement("li");
     userItem.appendChild(
       document.createTextNode(
-        `${userDetails.username} - ${userDetails.email} - ${userDetails.phone}`
+        `${vegDetail.Name}    ${"Rs:"+vegDetail.Price}     ${vegDetail.Quantity+"KG"}`
       )
     );
   
+    //<label for="Name">Name</label>
+    //<input type="text" name="Name" id="Name" />
+
+    const inputbox = document.createElement("input");
+    inputbox.type = "number"
+    inputbox.name = "Buy"
+    inputbox.id = "Buy"
+    
+    userItem.appendChild(inputbox);
+  
+    const buy = document.createElement("button");
+    buy.htmlFor = "Buy"
+    buy.appendChild(document.createTextNode("Buy"));
+    userItem.appendChild(buy);
+
     const deleteBtn = document.createElement("button");
     deleteBtn.appendChild(document.createTextNode("Delete"));
     userItem.appendChild(deleteBtn);
-  
-    const editBtn = document.createElement("button");
-    editBtn.appendChild(document.createTextNode("Edit"));
-    userItem.appendChild(editBtn);
   
     const userList = document.querySelector("ul");
     userList.appendChild(userItem);
   
     deleteBtn.addEventListener("click", function (event) {
       //userList.removeChild(event.target.parentElement);
-      axios.delete(`https://crudcrud.com/api/9eae1dc0e3044118a978c0ea505c2000/appointmentData/${userDetails._id}`)
+      axios.delete(`https://crudcrud.com/api/0abe13028f224d9d88f2ff8939818e2b/VegetableShop/${vegDetail._id}`)
       .then((res) => {
         userList.removeChild(event.target.parentElement)
       })
       .catch((error) => console.log(error));
     });
   
-    editBtn.addEventListener("click", function (event) {
-
-      axios.delete(`https://crudcrud.com/api/9eae1dc0e3044118a978c0ea505c2000/appointmentData/${userDetails._id}`)
-      .then((res) => {
-        userList.removeChild(event.target.parentElement)
-        document.getElementById("username").value = userDetails.username;
-        document.getElementById("email").value = userDetails.email;
-        document.getElementById("phone").value = userDetails.phone;
-      })
-      .catch((error) => console.log(error));
-      
+    buy.addEventListener("click", function (event) {
+      const quantityEntered = document.getElementById("Buy").value
+      const stockQuantity = vegDetail.Quantity
+      const remainingStock = {
+        "Name":vegDetail.Name,
+        "Price":vegDetail.Price,
+        "Quantity":stockQuantity - quantityEntered
+      }
+      if (quantityEntered <= stockQuantity) {
+        axios.put(`https://crudcrud.com/api/0abe13028f224d9d88f2ff8939818e2b/VegetableShop/${vegDetail._id}`,
+        remainingStock
+      )
+        .then((response) => console.log(response.data))
+        .catch((error) => console.log(error));
+      }
+        
     });
   }
   
